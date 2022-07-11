@@ -1,2 +1,2 @@
-# Only for the testing 
-prinrt("Hello world")
+#This is only for testing purpose
+print("Hello World")
