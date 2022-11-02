@@ -18,4 +18,4 @@ jobs:
           python-version: '3.9'
 
       - name: execute sanity_checks.py script
-        run: python -m unittest .github/workflows/sanity_checks_utcs.py
+        run: python .github/workflows/sanity_checks_utcs.py
