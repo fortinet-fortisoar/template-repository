@@ -1,6 +1,16 @@
 import json
 import os
 
+DEFAULT_UTC = "- [ ] Connector installation verified.\n" \
+               "- [ ] Connector logo verified.\n" \
+               "- [ ] Docs link verified.\n" \
+               "- [ ] Actions and Playbooks list verified.\n" \
+               "- [ ] Playbooks tags verified.\n" \
+               "- [ ] All playbooks are in info mode verified.\n" \
+               "- [ ] All playbooks are in inactive mode verified.\n" \
+               "- [ ] Ingestion playbooks are verified.\n" \
+               "- [ ] Check health verified.\n"
+
 
 def add_effected_actions(template: str, info: dict) -> str:
     template += "\n#### Affected Actions:\n"
@@ -18,16 +28,7 @@ def add_effected_actions(template: str, info: dict) -> str:
 def add_unit_test_cases(template: str, info: dict) -> str:
     template += "\n#### UTCs:\n"
 
-    template += \
-        "- [ ] Connector installation verified.\n" \
-        "- [ ] Connector logo verified.\n" \
-        "- [ ] Docs link verified.\n" \
-        "- [ ] Actions and Playbooks list verified.\n" \
-        "- [ ] Playbooks tags verified.\n" \
-        "- [ ] All playbooks are in info mode verified.\n" \
-        "- [ ] All playbooks are in inactive mode verified.\n" \
-        "- [ ] Ingestion playbooks are verified.\n" \
-        "- [ ] Check health verified.\n"
+    template += DEFAULT_UTC
 
     actions = info.get("operations", [])
     for action in actions:

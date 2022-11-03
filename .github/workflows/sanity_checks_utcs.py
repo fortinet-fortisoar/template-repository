@@ -30,7 +30,6 @@ def get_info_file_path():
         if "info.json" in filenames:
             info_file_path = dirname + "/info.json"
             break
-    print("tada",dirname)
     return info_file_path, dirname
 
 
