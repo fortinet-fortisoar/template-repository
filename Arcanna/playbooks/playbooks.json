@@ -1,0 +1,597 @@
+{
+  "type": "workflow_collections",
+  "data": [
+    {
+      "@context": "/api/3/contexts/WorkflowCollection",
+      "@type": "WorkflowCollection",
+      "name": "01-Arcanna",
+      "description": null,
+      "visible": true,
+      "image": null,
+      "uuid": "4dc865c8-012e-4326-8be5-252b723ea734",
+      "id": 10,
+      "createDate": 1656683619.591635,
+      "modifyDate": 1666886406.500338,
+      "deletedAt": null,
+      "importedBy": [
+        {
+          "apiName": "sOARFramework",
+          "name": "SOAR Framework",
+          "version": "1.1.0"
+        }
+      ],
+      "recordTags": [],
+      "workflows": [
+        {
+          "@type": "Workflow",
+          "triggerLimit": null,
+          "name": "Arcanna.ai simple playbook",
+          "aliasName": null,
+          "tag": null,
+          "description": "Example of how to integrate Arcanna in case.",
+          "isActive": true,
+          "debug": true,
+          "singleRecordExecution": false,
+          "remoteExecutableFlag": false,
+          "parameters": [],
+          "synchronous": false,
+          "lastModifyDate": 1678209511,
+          "collection": "/api/3/workflow_collections/4dc865c8-012e-4326-8be5-252b723ea734",
+          "versions": [],
+          "triggerStep": "/api/3/workflow_steps/4169fdf7-4b78-42fb-a869-8c618f3dc54d",
+          "steps": [
+            {
+              "@type": "WorkflowStep",
+              "name": "Start_",
+              "description": null,
+              "arguments": {
+                "route": "3b031e62-e745-445c-8027-7223f6f0c0ba",
+                "title": "trigger arcanna simple playbook",
+                "resources": [
+                  "alerts"
+                ],
+                "inputVariables": [],
+                "step_variables": {
+                  "input": {
+                    "params": [],
+                    "records": "{{vars.input.records}}"
+                  }
+                },
+                "displayConditions": {
+                  "alerts": {
+                    "sort": [],
+                    "limit": 30,
+                    "logic": "AND",
+                    "filters": []
+                  },
+                  "incidents": {
+                    "sort": [],
+                    "limit": 30,
+                    "logic": "AND",
+                    "filters": []
+                  }
+                },
+                "executeButtonText": "Execute",
+                "noRecordExecution": false,
+                "singleRecordExecution": true
+              },
+              "status": null,
+              "top": "160",
+              "left": "660",
+              "stepType": "/api/3/workflow_step_types/f414d039-bb0d-4e59-9c39-a8f1e880b18a",
+              "group": null,
+              "uuid": "4169fdf7-4b78-42fb-a869-8c618f3dc54d"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Set job_id",
+              "description": null,
+              "arguments": {
+                "job_id": "1260"
+              },
+              "status": null,
+              "top": "260",
+              "left": "660",
+              "stepType": "/api/3/workflow_step_types/04d0cf46-b6a8-42c4-8683-60a7eaa69e8f",
+              "group": null,
+              "uuid": "d201e06e-6de9-4ad8-b13c-77f667c3aed9"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Send record to Arcanna",
+              "description": null,
+              "arguments": {
+                "name": "ArcannaAi",
+                "config": "4d5df3be-aa53-4b06-ae1c-de5951ded46a",
+                "params": {
+                  "body": "{{vars.input.records[0]}}",
+                  "jobId": "{{vars.job_id}}",
+                  "title": "{{vars.input.records[0].description}}",
+                  "caseId": "{{vars.input.records[0].id}}"
+                },
+                "version": "1.0.1",
+                "connector": "Arcanna",
+                "operation": "send_to_arcanna",
+                "operationTitle": "Send To Arcanna",
+                "pickFromTenant": false,
+                "step_variables": []
+              },
+              "status": null,
+              "top": "360",
+              "left": "660",
+              "stepType": "/api/3/workflow_step_types/0bfed618-0316-11e7-93ae-92361f002671",
+              "group": null,
+              "uuid": "07df853a-8914-4569-bba6-d1b2d65d0205"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Wait for inference",
+              "description": null,
+              "arguments": {
+                "rule": {
+                  "actions": [
+                    {
+                      "type": "resume_playbook",
+                      "enabled": true,
+                      "channel_uuid": "e2ce87c2-c55a-11ec-9d64-0242ac120002"
+                    }
+                  ],
+                  "is_active": true,
+                  "event_source": "crudhub"
+                },
+                "type": "TimeBased",
+                "delay": {
+                  "days": 0,
+                  "hours": 0,
+                  "weeks": 0,
+                  "minutes": 0,
+                  "seconds": 10
+                }
+              },
+              "status": null,
+              "top": "460",
+              "left": "660",
+              "stepType": "/api/3/workflow_step_types/6832e556-b9c7-497a-babe-feda3bd27dbf",
+              "group": null,
+              "uuid": "72f6008e-6919-401e-8e4d-285c04793ec5"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Get inference result",
+              "description": null,
+              "arguments": {
+                "name": "ArcannaAi",
+                "config": "4d5df3be-aa53-4b06-ae1c-de5951ded46a",
+                "params": {
+                  "jobId": "{{vars.job_id}}",
+                  "eventId": "{{vars.steps.Send_record_to_Arcanna.data.event_id}}"
+                },
+                "version": "1.0.1",
+                "connector": "Arcanna",
+                "operation": "get_arcanna_response",
+                "operationTitle": "GET Arcanna RESPONSE",
+                "pickFromTenant": false,
+                "step_variables": []
+              },
+              "status": null,
+              "top": "560",
+              "left": "660",
+              "stepType": "/api/3/workflow_step_types/0bfed618-0316-11e7-93ae-92361f002671",
+              "group": null,
+              "uuid": "533d99de-dc57-42a9-a2ea-31b5f3796047"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Escalate or Drop",
+              "description": null,
+              "arguments": {
+                "conditions": [
+                  {
+                    "option": "Drop Alert",
+                    "step_iri": "/api/3/workflow_steps/008a62d9-1e26-4006-8bf5-e4c27e342649",
+                    "condition": "{{ vars.steps.Get_inference_result.data.result == 'drop_alert' }}",
+                    "step_name": "Approve case close"
+                  },
+                  {
+                    "option": "Escalate Alert",
+                    "step_iri": "/api/3/workflow_steps/c85fe7a1-fe70-44b2-87a5-00b58ef0dc81",
+                    "condition": "{{ vars.steps.Get_inference_result.data.result != 'drop_alert' }}",
+                    "step_name": "Closure Reason"
+                  }
+                ]
+              },
+              "status": null,
+              "top": "660",
+              "left": "660",
+              "stepType": "/api/3/workflow_step_types/12254cf5-5db7-4b1a-8cb1-3af081924b28",
+              "group": null,
+              "uuid": "e281b30a-ab54-4b2f-91d9-d235e2dd7445"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Approve case close",
+              "description": null,
+              "arguments": {
+                "resource": {
+                  "method": {
+                    "id": 47,
+                    "@id": "/api/3/picklists/7a04788b-5128-4288-a0fc-6e82d18c3b7b",
+                    "icon": null,
+                    "uuid": "7a04788b-5128-4288-a0fc-6e82d18c3b7b",
+                    "@type": "Picklist",
+                    "color": null,
+                    "display": "System",
+                    "listName": "/api/3/picklist_names/d7bdd0ba-d721-4324-bec5-410e23f0f485",
+                    "itemValue": "System",
+                    "importedBy": [],
+                    "orderIndex": 1
+                  },
+                  "status": {
+                    "id": 82,
+                    "@id": "/api/3/picklists/d26464e0-1df4-46c2-a032-018911ba0c40",
+                    "icon": null,
+                    "uuid": "d26464e0-1df4-46c2-a032-018911ba0c40",
+                    "@type": "Picklist",
+                    "color": "#bf9937",
+                    "listName": "/api/3/picklist_names/ce294c1f-9318-425f-9a12-2957292f4cbf",
+                    "itemValue": "Pending",
+                    "importedBy": [],
+                    "orderIndex": 2
+                  },
+                  "assignedTo": "/api/3/people/3451141c-bac6-467c-8d72-85e0fab569ce",
+                  "userOwners": [
+                    "/api/3/people/3451141c-bac6-467c-8d72-85e0fab569ce"
+                  ],
+                  "playbookiri": "api/3/workflows/34e6d409-6cdd-4fed-96b1-8643151ad6bb",
+                  "playbookname": "test_arcanna",
+                  "playbookuuid": "34e6d409-6cdd-4fed-96b1-8643151ad6bb",
+                  "approvaldescription": "ok to close the ticket?"
+                },
+                "collection": "approvals",
+                "step_variables": []
+              },
+              "status": null,
+              "top": "820",
+              "left": "880",
+              "stepType": "/api/3/workflow_step_types/6832e556-b9c7-497a-babe-feda3bd27dcg",
+              "group": null,
+              "uuid": "008a62d9-1e26-4006-8bf5-e4c27e342649"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Close with False Positive",
+              "description": null,
+              "arguments": {
+                "resource": {
+                  "status": "/api/3/picklists/fac53e73-8d16-4189-98d5-95fbd1555232",
+                  "closureReason": "/api/3/picklists/2b0112f6-4746-4dab-ada6-a8cd1e675572"
+                },
+                "_showJson": false,
+                "operation": "Append",
+                "collection": "{{ vars.input.records[0][\"@id\"] }}",
+                "__recommend": [],
+                "collectionType": "/api/3/alerts",
+                "fieldOperation": [],
+                "step_variables": []
+              },
+              "status": null,
+              "top": "1060",
+              "left": "880",
+              "stepType": "/api/3/workflow_step_types/b593663d-7d13-40ce-a3a3-96dece928722",
+              "group": null,
+              "uuid": "91f25f71-dbb1-4e69-919a-6eab5b726d14"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Closure Reason",
+              "description": null,
+              "arguments": {
+                "type": "DecisionBased",
+                "input": {
+                  "schema": {
+                    "title": "Decision on alert",
+                    "description": "drop or escalate",
+                    "inputVariables": []
+                  }
+                },
+                "record": "{{ vars.input.records[0][\"@id\"] }}",
+                "resources": "alerts",
+                "owner_detail": {
+                  "isAssigned": false
+                },
+                "isRecordLinked": true,
+                "step_variables": [],
+                "response_mapping": {
+                  "options": [
+                    {
+                      "option": "drop_alert",
+                      "primary": false,
+                      "step_iri": "/api/3/workflow_steps/19542ea7-a408-402c-8a57-227f0d0ba146"
+                    },
+                    {
+                      "option": "escalate_alert",
+                      "step_iri": "/api/3/workflow_steps/6e480ffc-a155-493a-ab6c-e9cca70cd560"
+                    }
+                  ],
+                  "duplicateOption": false
+                },
+                "email_notification": {
+                  "enabled": false,
+                  "smtpParameters": []
+                }
+              },
+              "status": null,
+              "top": "820",
+              "left": "440",
+              "stepType": "/api/3/workflow_step_types/fc04082a-d7dc-4299-96fb-6837b1baa0fe",
+              "group": null,
+              "uuid": "c85fe7a1-fe70-44b2-87a5-00b58ef0dc81"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Close with drop_alert",
+              "description": null,
+              "arguments": {
+                "resource": {
+                  "status": "/api/3/picklists/fac53e73-8d16-4189-98d5-95fbd1555232",
+                  "closureReason": "/api/3/picklists/2b0112f6-4746-4dab-ada6-a8cd1e675572"
+                },
+                "operation": "Append",
+                "collection": "{{ vars.input.records[0][\"@id\"] }}",
+                "__recommend": [],
+                "collectionType": "/api/3/alerts",
+                "fieldOperation": {
+                  "recordTags": "Append"
+                },
+                "step_variables": []
+              },
+              "status": null,
+              "top": "1060",
+              "left": "260",
+              "stepType": "/api/3/workflow_step_types/b593663d-7d13-40ce-a3a3-96dece928722",
+              "group": null,
+              "uuid": "df45a3ee-6922-4a16-8cff-cfed1b863dbd"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Close with escalate_alert",
+              "description": null,
+              "arguments": {
+                "resource": {
+                  "status": "/api/3/picklists/fac53e73-8d16-4189-98d5-95fbd1555232",
+                  "closureReason": "/api/3/picklists/2ab3e8e9-8cd9-4641-8400-a18a4e8a2da8"
+                },
+                "operation": "Append",
+                "collection": "{{ vars.input.records[0][\"@id\"] }}",
+                "__recommend": [],
+                "collectionType": "/api/3/alerts",
+                "fieldOperation": [],
+                "step_variables": []
+              },
+              "status": null,
+              "top": "1060",
+              "left": "620",
+              "stepType": "/api/3/workflow_step_types/b593663d-7d13-40ce-a3a3-96dece928722",
+              "group": null,
+              "uuid": "de94e29d-398d-43a3-aa04-965b89e819b9"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Send feedback with drop_alert",
+              "description": null,
+              "arguments": {
+                "name": "ArcannaAi",
+                "config": "4d5df3be-aa53-4b06-ae1c-de5951ded46a",
+                "params": {
+                  "user": "{{vars.input.records[0].assignedTo.lastname}}",
+                  "jobId": "{{vars.job_id}}",
+                  "eventId": "{{vars.steps.Send_record_to_Arcanna.data.event_id}}",
+                  "closingStatus": "drop_alert"
+                },
+                "version": "1.0.1",
+                "connector": "Arcanna",
+                "operation": "send_feedback",
+                "operationTitle": "Send Feedback",
+                "pickFromTenant": false,
+                "step_variables": []
+              },
+              "status": null,
+              "top": "940",
+              "left": "260",
+              "stepType": "/api/3/workflow_step_types/0bfed618-0316-11e7-93ae-92361f002671",
+              "group": null,
+              "uuid": "19542ea7-a408-402c-8a57-227f0d0ba146"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Send feedback with escalate_alert",
+              "description": null,
+              "arguments": {
+                "name": "ArcannaAi",
+                "config": "4d5df3be-aa53-4b06-ae1c-de5951ded46a",
+                "params": {
+                  "user": "{{vars.input.records[0].assignedTo.lastname}}",
+                  "jobId": "{{vars.job_id}}",
+                  "eventId": "{{vars.steps.Send_record_to_Arcanna.data.event_id}}",
+                  "closingStatus": "escalate_alert"
+                },
+                "version": "1.0.1",
+                "connector": "Arcanna",
+                "operation": "send_feedback",
+                "operationTitle": "Send Feedback",
+                "pickFromTenant": false,
+                "step_variables": []
+              },
+              "status": null,
+              "top": "940",
+              "left": "620",
+              "stepType": "/api/3/workflow_step_types/0bfed618-0316-11e7-93ae-92361f002671",
+              "group": null,
+              "uuid": "6e480ffc-a155-493a-ab6c-e9cca70cd560"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Send feedback with drop_alert 2",
+              "description": null,
+              "arguments": {
+                "name": "ArcannaAi",
+                "config": "4d5df3be-aa53-4b06-ae1c-de5951ded46a",
+                "params": {
+                  "user": "{{vars.input.records[0].assignedTo.lastname}}",
+                  "jobId": "{{vars.job_id}}",
+                  "eventId": "{{vars.steps.Send_record_to_Arcanna.data.event_id}}",
+                  "closingStatus": "drop_alert"
+                },
+                "version": "1.0.1",
+                "connector": "Arcanna",
+                "operation": "send_feedback",
+                "operationTitle": "Send Feedback",
+                "pickFromTenant": false,
+                "step_variables": []
+              },
+              "status": null,
+              "top": "940",
+              "left": "880",
+              "stepType": "/api/3/workflow_step_types/0bfed618-0316-11e7-93ae-92361f002671",
+              "group": null,
+              "uuid": "bd40849d-86ca-4567-8314-8c13c5de5a69"
+            }
+          ],
+          "routes": [
+            {
+              "@type": "WorkflowRoute",
+              "name": "Start_ -> fda",
+              "targetStep": "/api/3/workflow_steps/d201e06e-6de9-4ad8-b13c-77f667c3aed9",
+              "sourceStep": "/api/3/workflow_steps/4169fdf7-4b78-42fb-a869-8c618f3dc54d",
+              "label": null,
+              "isExecuted": false,
+              "uuid": "c3c4adb3-3827-41d4-98bd-67aa5cdd64b0"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "Set job_id -> Send record to Arcanna",
+              "targetStep": "/api/3/workflow_steps/07df853a-8914-4569-bba6-d1b2d65d0205",
+              "sourceStep": "/api/3/workflow_steps/d201e06e-6de9-4ad8-b13c-77f667c3aed9",
+              "label": null,
+              "isExecuted": false,
+              "uuid": "7effc69a-347a-4c66-88f4-e58d5190b2ff"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "Send record to Arcanna -> Wait for inference",
+              "targetStep": "/api/3/workflow_steps/72f6008e-6919-401e-8e4d-285c04793ec5",
+              "sourceStep": "/api/3/workflow_steps/07df853a-8914-4569-bba6-d1b2d65d0205",
+              "label": null,
+              "isExecuted": false,
+              "uuid": "73428d6e-a1c0-4a87-afe6-7e181aecdf63"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "Wait for inference -> Get inference result",
+              "targetStep": "/api/3/workflow_steps/533d99de-dc57-42a9-a2ea-31b5f3796047",
+              "sourceStep": "/api/3/workflow_steps/72f6008e-6919-401e-8e4d-285c04793ec5",
+              "label": null,
+              "isExecuted": false,
+              "uuid": "f0f361f6-8a0d-490a-a1a2-20b7b191c967"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "Get inference result -> Escalate or Drop",
+              "targetStep": "/api/3/workflow_steps/e281b30a-ab54-4b2f-91d9-d235e2dd7445",
+              "sourceStep": "/api/3/workflow_steps/533d99de-dc57-42a9-a2ea-31b5f3796047",
+              "label": null,
+              "isExecuted": false,
+              "uuid": "24e781a3-b69a-4f64-8534-8f94ca9644dc"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "Escalate or Drop -> Approve case close",
+              "targetStep": "/api/3/workflow_steps/008a62d9-1e26-4006-8bf5-e4c27e342649",
+              "sourceStep": "/api/3/workflow_steps/e281b30a-ab54-4b2f-91d9-d235e2dd7445",
+              "label": "Drop Alert",
+              "isExecuted": false,
+              "uuid": "8255574a-65c9-47c3-893e-e5365c73253e"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "Closure Reason -> Send feedback with drop_alert",
+              "targetStep": "/api/3/workflow_steps/19542ea7-a408-402c-8a57-227f0d0ba146",
+              "sourceStep": "/api/3/workflow_steps/c85fe7a1-fe70-44b2-87a5-00b58ef0dc81",
+              "label": "drop_alert",
+              "isExecuted": false,
+              "uuid": "7d9c8d37-17b2-4c29-9e2a-d39c45d0ab01"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "Send feedback with drop_alert -> Close with drop_alert",
+              "targetStep": "/api/3/workflow_steps/df45a3ee-6922-4a16-8cff-cfed1b863dbd",
+              "sourceStep": "/api/3/workflow_steps/19542ea7-a408-402c-8a57-227f0d0ba146",
+              "label": null,
+              "isExecuted": false,
+              "uuid": "f1bd8563-c751-4acd-a0d8-f96f3db566ab"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "Send feedback with escalate_alert -> Close with escalate_alert",
+              "targetStep": "/api/3/workflow_steps/de94e29d-398d-43a3-aa04-965b89e819b9",
+              "sourceStep": "/api/3/workflow_steps/6e480ffc-a155-493a-ab6c-e9cca70cd560",
+              "label": null,
+              "isExecuted": false,
+              "uuid": "ecb1c3d9-7d45-438d-abfd-99914c4a3b92"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "Closure Reason -> Send feedback with escalate_alert",
+              "targetStep": "/api/3/workflow_steps/6e480ffc-a155-493a-ab6c-e9cca70cd560",
+              "sourceStep": "/api/3/workflow_steps/c85fe7a1-fe70-44b2-87a5-00b58ef0dc81",
+              "label": "escalate_alert",
+              "isExecuted": false,
+              "uuid": "7d6acfb9-c011-43e1-bd6b-1335e29707f5"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "Approve case close -> Send feedback with drop_alert 2",
+              "targetStep": "/api/3/workflow_steps/bd40849d-86ca-4567-8314-8c13c5de5a69",
+              "sourceStep": "/api/3/workflow_steps/008a62d9-1e26-4006-8bf5-e4c27e342649",
+              "label": null,
+              "isExecuted": false,
+              "uuid": "dbfe7a1e-5e82-4ff6-a029-f468ee0205a3"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "Send feedback with drop_alert 2 -> Close with False Positive",
+              "targetStep": "/api/3/workflow_steps/91f25f71-dbb1-4e69-919a-6eab5b726d14",
+              "sourceStep": "/api/3/workflow_steps/bd40849d-86ca-4567-8314-8c13c5de5a69",
+              "label": null,
+              "isExecuted": false,
+              "uuid": "8f9f93c8-db7c-409d-8168-020efa31c854"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "name": "Escalate or Drop -> Closure Reason",
+              "targetStep": "/api/3/workflow_steps/c85fe7a1-fe70-44b2-87a5-00b58ef0dc81",
+              "sourceStep": "/api/3/workflow_steps/e281b30a-ab54-4b2f-91d9-d235e2dd7445",
+              "label": "Escalate Alert",
+              "isExecuted": false,
+              "uuid": "9ff84fda-e597-40c9-be04-bcb86adf568d"
+            }
+          ],
+          "groups": [],
+          "priority": "/api/3/picklists/2b563c61-ae2c-41c0-a85a-c9709585e3f2",
+          "uuid": "770376ac-5b7c-4833-9e9f-03cd0acbcc67",
+          "id": 532,
+          "createUser": "/api/3/people/3451141c-bac6-467c-8d72-85e0fab569ce",
+          "createDate": 1668761627.971803,
+          "modifyUser": "/api/3/people/3451141c-bac6-467c-8d72-85e0fab569ce",
+          "modifyDate": 1678209511.209798,
+          "owners": [],
+          "isPrivate": false,
+          "deletedAt": null,
+          "importedBy": [],
+          "recordTags": []
+        }
+      ]
+    }
+  ],
+  "exported_tags": []
+}

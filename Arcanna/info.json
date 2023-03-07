@@ -1,0 +1,196 @@
+{
+    "name": "Arcanna",
+    "version": "1.0.1",
+    "label": "ArcannaAi",
+    "description": "Arcanna.ai is a platform for delivering decision intelligence. \nIt augments Security Operation Center analysts in dealing with incoming threats by increasing analyst efficiency in decision-making.\n\nMore information is available at https://arcanna.ai",
+    "publisher": "Arcanna.ai",
+    "icon_small_name": "small.png",
+    "icon_large_name": "large.png",
+    "category": "",
+    "configuration": {
+        "fields": [
+            {
+                "title": "Server Address",
+                "type": "text",
+                "name": "server_address",
+                "required": true,
+                "visible": true,
+                "editable": true,
+                "value": null,
+                "tooltip": "Server URL of Arcanna.ai Rest Api"
+            },
+            {
+                "title": "Server Port",
+                "type": "text",
+                "name": "port",
+                "required": true,
+                "visible": true,
+                "editable": true,
+                "value": "443"
+            },
+            {
+                "title": "ApiKey",
+                "type": "text",
+                "name": "apiKey",
+                "required": true,
+                "visible": true,
+                "editable": true,
+                "tooltip": "Api Key for Arcanna API"
+            },
+            {
+                "title": "Protocol",
+                "type": "select",
+                "name": "protocol",
+                "required": true,
+                "visible": true,
+                "editable": true,
+                "options": [
+                    "HTTP",
+                    "HTTPS"
+                ]
+            },
+            {
+                "title": "Verify SSL",
+                "type": "checkbox",
+                "name": "verify_ssl",
+                "required": false,
+                "visible": true,
+                "editable": true
+            }
+        ]
+    },
+    "operations": [
+        {
+            "title": "GET Arcanna RESPONSE",
+            "operation": "get_arcanna_response",
+            "description": "",
+            "parameters": [
+                {
+                    "title": "JobId",
+                    "type": "text",
+                    "name": "jobId",
+                    "required": true,
+                    "visible": true,
+                    "editable": true,
+                    "value": ""
+                },
+                {
+                    "title": "EventId",
+                    "type": "text",
+                    "name": "eventId",
+                    "required": true,
+                    "visible": true,
+                    "editable": true,
+                    "value": ""
+                }
+            ],
+            "open": false,
+            "category": "utilities"
+        },
+        {
+            "title": "Send Feedback",
+            "operation": "send_feedback",
+            "description": "",
+            "parameters": [
+                {
+                    "title": "user",
+                    "type": "text",
+                    "name": "user",
+                    "required": true,
+                    "visible": true,
+                    "editable": true,
+                    "value": ""
+                },
+                {
+                    "title": "JobId",
+                    "type": "text",
+                    "name": "jobId",
+                    "required": true,
+                    "visible": true,
+                    "editable": true,
+                    "value": ""
+                },
+                {
+                    "title": "EventId",
+                    "type": "text",
+                    "name": "eventId",
+                    "required": true,
+                    "visible": true,
+                    "editable": true,
+                    "value": ""
+                },
+                {
+                    "title": "closingStatus",
+                    "type": "select",
+                    "name": "closingStatus",
+                    "required": true,
+                    "visible": true,
+                    "editable": true,
+                    "value": null,
+                    "options": [
+                        "drop_alert",
+                        "escalate_alert",
+                        "not_sure"
+                    ]
+                }
+            ],
+            "open": false,
+            "category": "utilities"
+        },
+        {
+            "title": "Get Jobs",
+            "operation": "get_jobs",
+            "description": "",
+            "parameters": [],
+            "open": false,
+            "category": "utilities"
+        },
+        {
+            "title": "Send To Arcanna",
+            "operation": "send_to_arcanna",
+            "description": "",
+            "parameters": [
+                {
+                    "title": "JobId",
+                    "type": "text",
+                    "name": "jobId",
+                    "required": true,
+                    "visible": true,
+                    "editable": true,
+                    "value": "1376"
+                },
+                {
+                    "title": "title",
+                    "type": "text",
+                    "name": "title",
+                    "required": true,
+                    "visible": true,
+                    "editable": true,
+                    "value": "",
+                    "tooltip": "Alert Title"
+                },
+                {
+                    "title": "caseId",
+                    "type": "text",
+                    "name": "caseId",
+                    "required": false,
+                    "visible": true,
+                    "editable": true,
+                    "value": ""
+                },
+                {
+                    "title": "body",
+                    "type": "text",
+                    "name": "body",
+                    "required": true,
+                    "visible": true,
+                    "editable": true,
+                    "value": ""
+                }
+            ],
+            "open": false,
+            "category": "utilities"
+        }
+    ],
+    "forked_from": false
+}
