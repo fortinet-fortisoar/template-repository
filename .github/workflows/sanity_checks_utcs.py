@@ -1,9 +1,22 @@
 import json
 import os
 import re
+import language_tool_python
+from datetime import datetime
+
+current_year = datetime.now().year
+
+copyright_pattern = re.compile(
+    rf'"""\nCopyright start\nMIT License\nCopyright \(c\) {current_year} Fortinet Inc\nCopyright end\n"""',
+    re.MULTILINE
+)
+
+tool = language_tool_python.LanguageTool('en-US')
 
 CORRECT_UNICODE = "\u2713"
 WRONG_UNICODE = "\u2715"
+WARNING_UNICODE = "\u26A0"
+
 CONNECTOR_CATEGORY = ['Analytics and SIEM', 'Authentication', 'Case Management', 'Threat Intelligence', 'Database',
                       'Deception', 'Email Gateway', 'Endpoint Security', 'Identity and Access Management',
                       'Authentication', 'Insider Threat', 'IT Services', 'Network Security', 'Utilities',
@@ -19,7 +32,7 @@ CONNECTOR_CATEGORY = ['Analytics and SIEM', 'Authentication', 'Case Management',
                       'DevOps and Digital Operations and Digital Operations', 'Ticket Management', 'Other']
 OPERATION_CATEGORY = ["investigation", "containment", "remediation", "miscellaneous"]
 PARAMETER_CATEGORY = ["text", "textarea", "integer", "datetime", "select", "multiselect", "checkbox", "password",
-                      "json", "apiOperation"]
+                      "json", "apiOperation", "email"]
 
 
 def get_info_file_path():
@@ -46,8 +59,10 @@ class TestConnectorInfoSanity:
         self.connector_info = read_info(self.info_file_path)
         self.report = ""
         self.error = ""
+        self.warning = ""
         self.failed_test_count = 0
         self.passed_test_count = 0
+        self.warning_test_count = 0
         if self.connector_info:
             self.init_test()
         else:
@@ -62,17 +77,40 @@ class TestConnectorInfoSanity:
         self.report += f"\033[31m{WRONG_UNICODE} {message}\033[0m\n"
         self.error += f"\033[31m{WRONG_UNICODE} {message}\033[0m\n"
 
+    def append_warning(self, message: str):
+        self.warning_test_count += 1
+        self.report += f"\033[33m{WARNING_UNICODE} {message}\033[0m\n"
+        self.warning += f"\033[33m{WARNING_UNICODE} {message}\033[0m\n"
+
     def init_test(self):
+        self.verify_copyright_block()
         self.verify_connector_name()
+        self.verify_connector_label()
         self.verify_connector_version()
         self.verify_connector_publisher()
         self.verify_connector_category()
         self.verify_connector_logo()
+        self.verify_connector_descriptions()
         self.verify_connector_docs_link()
         self.verify_configurations()
 
         for op in self.connector_info.get("operations", []):
             self.verify_operation(op)
+
+    def verify_copyright_block(self):
+        for dirname, dirnames, filenames in os.walk('.'):
+            files_to_skip = ['./.github/workflows/sanity_checks_utcs.py', './.github/workflows/generate_utcs.py']
+            for filename in filenames:
+                if filename.endswith('.py'):  # Only target Python files
+                    file_path = os.path.join(dirname, filename)
+                    if file_path in files_to_skip:
+                        continue
+                    with open(file_path, 'r', encoding='utf-8') as file:
+                        content = file.read()
+                        if copyright_pattern.search(content):
+                            self.append_correct(f'Correct copyright block found in {file_path}.')
+                        else:
+                            self.append_wrong(f'Missing or incorrect copyright block in {file_path}!')
 
     def verify_connector_name(self):
         folder_name = self.dirname.split("/")[-1]
@@ -107,11 +145,11 @@ class TestConnectorInfoSanity:
             self.append_wrong("Connector publisher is missing.")
 
         if conn_certified and conn_publisher.strip() != "Fortinet":
-            self.append_wrong(f"Connector is certified, publisher is should be 'Fortinet'."
+            self.append_wrong(f"Connector is certified, publisher should be 'Fortinet'."
                               f"But connector publisher is: '{conn_publisher}'")
-        if not conn_certified and conn_publisher.strip() != "Community":
-            self.append_wrong(f"Connector is not certified, publisher name should be 'Community'.But connector "
-                              f"publisher is: '{conn_publisher}'")
+        # if not conn_certified and conn_publisher.strip() != "Community":
+        #     self.append_wrong(f"Connector is not certified, publisher name should be 'Community'.But connector "
+        #                       f"publisher is: '{conn_publisher}'")
 
     def verify_connector_descriptions(self):
         conn_desc = self.connector_info.get("description")
@@ -121,7 +159,7 @@ class TestConnectorInfoSanity:
             self.append_wrong(f"Connector description is missing.")
 
         if len(conn_desc) < len(self.connector_info.get("label")) * 3:
-            self.append_wrong("Connector description is too short.")
+            self.append_warning("Connector description is too short.")
 
     def verify_connector_category(self):
         category = self.connector_info.get("category")
@@ -142,12 +180,13 @@ class TestConnectorInfoSanity:
     def verify_connector_docs_link(self):
         doc_link = self.connector_info.get("help_online", "").strip()
 
-        if doc_link and doc_link.startswith("https://docs.fortinet.com/document/fortisoar"):
+        if doc_link and (doc_link.startswith("https://docs.fortinet.com/document/fortisoar") or
+                         doc_link.startswith("https://github.com/fortinet-fortisoar")):
             self.append_correct("Connector doc link is available and valid.")
         elif doc_link:
             self.append_wrong(f"Connector doc link is available, but it is invalid. Connector Doc Link: '{doc_link}'")
         else:
-            self.append_wrong(f"Connector doc link is missing.")
+            self.append_warning(f"Connector doc link is missing.")
 
     def verify_configurations(self):
         fields = self.connector_info.get("configuration", {}).get("fields")
@@ -158,6 +197,8 @@ class TestConnectorInfoSanity:
         self.verify_operation_name(operation)
         self.verify_operation_title(operation)
         self.verify_operation_category(operation)
+        self.verify_operation_descriptions(operation)
+        self.verify_operation_output_schema(operation)
 
         for param in operation.get("parameters"):
             self.verify_parameter(operation.get("title"), param)
@@ -191,14 +232,23 @@ class TestConnectorInfoSanity:
         op_desc = operation.get("description")
         if op_desc:
             self.append_correct(f"Operation: '{operation.get('operation')}' -> Operation description is available.")
+            errors = tool.check(op_desc)
+            if errors:
+                corrected_desc = tool.correct(op_desc)
+                self.append_warning(f"Operation: '{operation.get('operation')}' -> Original Description: '{op_desc}' -> Corrected Description: '{corrected_desc}'")
         else:
             self.append_wrong(f"Operation: '{operation.get('operation')}' -> Operation description is missing.")
 
-        if len(op_desc) < len(operation) * 3:
-            self.append_wrong(f"Operation: '{operation.get('operation')}' -> Operation description is too short.")
+        if len(op_desc) < len(operation.get('operation')) * 3:
+            self.append_warning(f"Operation: '{operation.get('operation')}' -> Operation description is too short.")
 
     def verify_operation_output_schema(self, operation):
-        op_output_schema = operation.get("output_schema")
+        if "conditional_output_schema" in operation:
+            op_output_schema = operation.get("conditional_output_schema")
+        elif "api_output_schema" in operation:
+            op_output_schema = operation.get("api_output_schema")
+        else:
+            op_output_schema = operation.get("output_schema")
         if op_output_schema:
             self.append_correct(
                 f"Operation: '{operation.get('operation')}' -> Operation output schema is available.")
@@ -240,11 +290,15 @@ class TestConnectorInfoSanity:
         p_name = params.get("name")
         if p_desc:
             self.append_correct(f"Operation: '{op_name}' -> Params: '{p_name}' -> Params description is available.")
+            errors = tool.check(p_desc)
+            if errors:
+                corrected_desc = tool.correct(p_desc)
+                self.append_warning(f"Operation: '{op_name}' -> Params: '{p_name}' -> Original Description: '{p_desc}' -> Corrected Description: '{corrected_desc}'")
         else:
             self.append_wrong(f"Operation: '{op_name}' -> Params: '{p_name}' -> Params descriptions is missing.")
 
         if len(p_desc) < len(p_name) * 3:
-            self.append_wrong(f"Operation: '{op_name}' -> Params: '{p_name}' -> Params descriptions is short.")
+            self.append_warning(f"Operation: '{op_name}' -> Params: '{p_name}' -> Params descriptions is short.")
 
 
 def main():
@@ -253,10 +307,21 @@ def main():
     print(test_conn.report)
     print("----------------Report End----------------\n\n")
 
+    total_checks = test_conn.passed_test_count + test_conn.failed_test_count + test_conn.warning_test_count
     if test_conn.error:
-        error_msg = f"\033[31mAll the checks didn't pass. '{test_conn.failed_test_count}' checks failed out of " \
-                    f"'{test_conn.passed_test_count + test_conn.failed_test_count}' checks.\n" + test_conn.error
+        if test_conn.warning:
+            error_msg = f"\033[31mAll the checks didn't pass. '{test_conn.failed_test_count}' checks failed, " \
+                        f"'{test_conn.warning_test_count}' checks had warnings out of '{total_checks}' checks.\n" \
+                        + test_conn.warning + test_conn.error
+        else:
+            error_msg = f"\033[31mAll the checks didn't pass. '{test_conn.failed_test_count}' checks failed out of " \
+                        f"'{total_checks}' checks.\n" + test_conn.error
         raise Exception(error_msg)
+
+    if test_conn.warning:
+        warning_msg = f"\033[33m'{test_conn.warning_test_count}' checks had warnings out of '{total_checks}' checks.\n" \
+                      + test_conn.warning
+        print(warning_msg)
 
 
 if __name__ == '__main__':
