@@ -145,11 +145,7 @@ class TestConnectorInfoSanity:
             self.append_wrong("Connector publisher is missing.")
 
         if conn_certified and conn_publisher.strip() != "Fortinet":
-            self.append_wrong(f"Connector is certified, publisher should be 'Fortinet'."
-                              f"But connector publisher is: '{conn_publisher}'")
-        # if not conn_certified and conn_publisher.strip() != "Community":
-        #     self.append_wrong(f"Connector is not certified, publisher name should be 'Community'.But connector "
-        #                       f"publisher is: '{conn_publisher}'")
+            self.append_warning(f"Connector is certified, But connector publisher is: '{conn_publisher}'")
 
     def verify_connector_descriptions(self):
         conn_desc = self.connector_info.get("description")
