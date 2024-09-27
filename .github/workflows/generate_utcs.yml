@@ -25,6 +25,7 @@ jobs:
           echo "::set-output name=utcs::$output"
 
       - uses: mshick/add-pr-comment@v1
+        continue-on-error: true
         with:
           message: |
             ${{ steps.generate_utcs.outputs.utcs }}
