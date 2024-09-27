@@ -151,11 +151,10 @@ class TestConnectorInfoSanity:
         conn_desc = self.connector_info.get("description")
         if conn_desc:
             self.append_correct(f"Connector description is available.")
+            if len(conn_desc) < len(self.connector_info.get("label")) * 3:
+                self.append_warning("Connector description is too short.")
         else:
             self.append_wrong(f"Connector description is missing.")
-
-        if len(conn_desc) < len(self.connector_info.get("label")) * 3:
-            self.append_warning("Connector description is too short.")
 
     def verify_connector_category(self):
         category = self.connector_info.get("category")
@@ -228,15 +227,14 @@ class TestConnectorInfoSanity:
         op_desc = operation.get("description")
         if op_desc:
             self.append_correct(f"Operation: '{operation.get('operation')}' -> Operation description is available.")
+            if len(op_desc) < len(operation.get('operation')) * 3:
+                self.append_warning(f"Operation: '{operation.get('operation')}' -> Operation description is too short.")
             errors = tool.check(op_desc)
             if errors:
                 corrected_desc = tool.correct(op_desc)
                 self.append_warning(f"Operation: '{operation.get('operation')}' -> Original Description: '{op_desc}' -> Corrected Description: '{corrected_desc}'")
         else:
             self.append_wrong(f"Operation: '{operation.get('operation')}' -> Operation description is missing.")
-
-        if len(op_desc) < len(operation.get('operation')) * 3:
-            self.append_warning(f"Operation: '{operation.get('operation')}' -> Operation description is too short.")
 
     def verify_operation_output_schema(self, operation):
         if "conditional_output_schema" in operation:
@@ -286,15 +284,14 @@ class TestConnectorInfoSanity:
         p_name = params.get("name")
         if p_desc:
             self.append_correct(f"Operation: '{op_name}' -> Params: '{p_name}' -> Params description is available.")
+            if len(p_desc) < len(p_name) * 3:
+                self.append_warning(f"Operation: '{op_name}' -> Params: '{p_name}' -> Params descriptions is short.")
             errors = tool.check(p_desc)
             if errors:
                 corrected_desc = tool.correct(p_desc)
                 self.append_warning(f"Operation: '{op_name}' -> Params: '{p_name}' -> Original Description: '{p_desc}' -> Corrected Description: '{corrected_desc}'")
         else:
             self.append_wrong(f"Operation: '{op_name}' -> Params: '{p_name}' -> Params descriptions is missing.")
-
-        if len(p_desc) < len(p_name) * 3:
-            self.append_warning(f"Operation: '{op_name}' -> Params: '{p_name}' -> Params descriptions is short.")
 
 
 def main():
