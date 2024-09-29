@@ -15,11 +15,11 @@ _Add fix/changes here_
 - [ ] Regression Impacts
 - [ ] Regression Area X
 
-#### Affected Actions:
+### Affected Actions:
 - [ ] All
 - [ ] Check Health
 
-#### UTCs:
+### UTCs:
 - [ ] Connector installation verified.
 - [ ] Connector logo verified.
 - [ ] Docs link verified.
