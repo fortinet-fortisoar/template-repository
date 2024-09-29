@@ -1,6 +1,7 @@
-import json
 import os
 import re
+import sys
+import json
 import language_tool_python
 from datetime import datetime
 
@@ -113,8 +114,9 @@ class TestConnectorInfoSanity:
                             self.append_wrong(f'Missing or incorrect copyright block in {file_path}!')
 
     def verify_connector_name(self):
+        conn_name = self.connector_info.get("name")
         folder_name = self.dirname.split("/")[-1]
-        if self.connector_info.get("name") == folder_name:
+        if conn_name and conn_name == folder_name:
             self.append_correct("Connector name is valid.")
         else:
             self.append_wrong("Connector name is invalid.")
@@ -141,11 +143,10 @@ class TestConnectorInfoSanity:
         conn_publisher = self.connector_info.get("publisher", "")
         if conn_publisher:
             self.append_correct("Connector publisher is available.")
+            if conn_certified and conn_publisher.strip() != "Fortinet":
+                self.append_warning(f"Connector is certified, But connector publisher is: '{conn_publisher}'")
         else:
             self.append_wrong("Connector publisher is missing.")
-
-        if conn_certified and conn_publisher.strip() != "Fortinet":
-            self.append_warning(f"Connector is certified, But connector publisher is: '{conn_publisher}'")
 
     def verify_connector_descriptions(self):
         conn_desc = self.connector_info.get("description")
@@ -158,7 +159,9 @@ class TestConnectorInfoSanity:
 
     def verify_connector_category(self):
         category = self.connector_info.get("category")
-        if category is not None and category in CONNECTOR_CATEGORY:
+        if isinstance(category, str) and category in CONNECTOR_CATEGORY:
+            self.append_correct("Connector category is valid.")
+        elif isinstance(category, list) and all(item in CONNECTOR_CATEGORY for item in category):
             self.append_correct("Connector category is valid.")
         else:
             self.append_wrong(f"Connector category is invalid. Category value: '{category}'")
@@ -214,7 +217,6 @@ class TestConnectorInfoSanity:
 
     def verify_operation_category(self, operation):
         op_category = operation.get("category")
-
         if op_category and op_category in OPERATION_CATEGORY:
             self.append_correct(f"Operation: '{operation.get('operation')}'-> Operation category is valid.")
         elif op_category:
@@ -296,9 +298,11 @@ class TestConnectorInfoSanity:
 
 def main():
     test_conn = TestConnectorInfoSanity()
-    print("----------------Report Start--------------")
+    print("----------------Report Start--------------\n")
     print(test_conn.report)
-    print("----------------Report End----------------\n\n")
+    sys.stdout.flush()
+    print("----------------Report End----------------\n")
+    sys.stdout.flush()
 
     total_checks = test_conn.passed_test_count + test_conn.failed_test_count + test_conn.warning_test_count
     if test_conn.error:
@@ -309,7 +313,8 @@ def main():
         else:
             error_msg = f"\033[31mAll the checks didn't pass. '{test_conn.failed_test_count}' checks failed out of " \
                         f"'{total_checks}' checks.\n" + test_conn.error
-        raise Exception(error_msg)
+        print(error_msg)
+        sys.exit(1)
 
     if test_conn.warning:
         warning_msg = f"\033[33m'{test_conn.warning_test_count}' checks had warnings out of '{total_checks}' checks.\n" \
