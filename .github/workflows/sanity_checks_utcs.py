@@ -187,7 +187,7 @@ class TestConnectorInfoSanity:
             self.append_warning(f"Connector doc link is missing.")
 
     def verify_configurations(self):
-        fields = self.connector_info.get("configuration", {}).get("fields")
+        fields = self.connector_info.get("configuration", {}).get("fields", [])
         for field in fields:
             self.verify_parameter("Configurations", field)
 
@@ -198,7 +198,7 @@ class TestConnectorInfoSanity:
         self.verify_operation_descriptions(operation)
         self.verify_operation_output_schema(operation)
 
-        for param in operation.get("parameters"):
+        for param in operation.get("parameters", []):
             self.verify_parameter(operation.get("title"), param)
 
     def verify_operation_name(self, operation):
@@ -257,6 +257,24 @@ class TestConnectorInfoSanity:
         self.verify_parameter_title(op_name, params)
         self.verify_parameter_type(op_name, params)
         self.verify_parameter_descriptions(op_name, params)
+        self.verify_nested_parameter(op_name, params)
+
+    def verify_nested_parameter(self, op_name, params):
+        p_name = params.get("name")
+        if params.get('onchange'):
+            if params.get('type') == 'checkbox':
+                if all(item in ['true', 'false'] for item in params.get("onchange").keys()):
+                    self.append_correct(f"Operation: '{op_name}' -> Params: '{p_name}' -> Nested Params are available.")
+                else:
+                    self.append_wrong(f"Operation: '{op_name}' -> Params: '{p_name}' -> Nested Params are invalid.")
+            if params.get('options'):
+                if all(item in params.get("options") for item in params.get("onchange").keys()):
+                    self.append_correct(f"Operation: '{op_name}' -> Params: '{p_name}' -> Nested Params are available.")
+                else:
+                    self.append_wrong(f"Operation: '{op_name}' -> Params: '{p_name}' -> Nested Params are invalid.")
+            for onchange_params in params.get("onchange").values():
+                for param in onchange_params:
+                    self.verify_parameter(op_name, param)
 
     def verify_parameter_name(self, op_name, params):
         p_name = params.get("name")
