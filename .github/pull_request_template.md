@@ -1,31 +1,32 @@
 ### Descriptions:
 _Add PR descriptions here_
 
-### Fix:
+#### Fix:
 _Add fix/changes here_
 
-### Dependencies
+#### Affected Actions:
+- [ ] All
+- [ ] Check Health
+- [ ] Other Actions
 
-* List any other project PR's this depends on?
-
-### To Test
-
+#### QA Impact:
 - [ ] `full`
 - [ ] Test what is prescribed in the Mantis Ticket
 - [ ] Regression Impacts
 - [ ] Regression Area X
+- [ ] Ensure that platform dependencies remain unaffected
 
-### Affected Actions:
-- [ ] All
-- [ ] Check Health
+#### UTCs:
+- [ ] Connector installation verified
+- [ ] Connector logo verified
+- [ ] Check health verified
+- [ ] Docs link verified
+- [ ] Actions and Playbooks list verified
+- [ ] Playbook tags verified
+- [ ] All playbooks are in info mode verified
+- [ ] All playbooks are in inactive mode verified
+- [ ] Ingestion playbooks are verified
+- [ ] Verified platform dependencies remain unaffected
 
-### UTCs:
-- [ ] Connector installation verified.
-- [ ] Connector logo verified.
-- [ ] Docs link verified.
-- [ ] Actions and Playbooks list verified.
-- [ ] Playbook tags verified.
-- [ ] All playbooks are in info mode verified.
-- [ ] All playbooks are in inactive mode verified.
-- [ ] Ingestion playbooks are verified.
-- [ ] Check health verified.
+#### Pytest Test Cases: (If applicable)
+- [ ] Attach the test report
