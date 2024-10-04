@@ -151,11 +151,11 @@ class TestConnectorInfoSanity:
     def verify_connector_descriptions(self):
         conn_desc = self.connector_info.get("description")
         if conn_desc:
-            self.append_correct(f"Connector description is available.")
+            self.append_correct("Connector description is available.")
             if len(conn_desc) < len(self.connector_info.get("label")) * 3:
                 self.append_warning("Connector description is too short.")
         else:
-            self.append_wrong(f"Connector description is missing.")
+            self.append_wrong("Connector description is missing.")
 
     def verify_connector_category(self):
         category = self.connector_info.get("category")
@@ -184,7 +184,7 @@ class TestConnectorInfoSanity:
         elif doc_link:
             self.append_wrong(f"Connector doc link is available, but it is invalid. Connector Doc Link: '{doc_link}'")
         else:
-            self.append_warning(f"Connector doc link is missing.")
+            self.append_warning("Connector doc link is missing.")
 
     def verify_configurations(self):
         fields = self.connector_info.get("configuration", {}).get("fields", [])
@@ -206,7 +206,7 @@ class TestConnectorInfoSanity:
         if op_name:
             self.append_correct(f"Operation '{op_name}' is available.")
         else:
-            self.append_wrong(f"Operation name is missing.")
+            self.append_wrong("Operation name is missing.")
 
     def verify_operation_title(self, operation):
         op_title = operation.get("title")
