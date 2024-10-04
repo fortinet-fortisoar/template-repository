@@ -9,12 +9,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: checkout repo content
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: setup python
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v4
         with:
           python-version: '3.9'
+
       - name: execute generate_utcs.py script
         id: generate_utcs
         run: |
@@ -25,6 +26,7 @@ jobs:
           echo "::set-output name=utcs::$output"
 
       - uses: mshick/add-pr-comment@v1
+        continue-on-error: true
         with:
           message: |
             ${{ steps.generate_utcs.outputs.utcs }}
