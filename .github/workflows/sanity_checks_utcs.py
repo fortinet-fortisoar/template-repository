@@ -18,19 +18,18 @@ CORRECT_UNICODE = "\u2713"
 WRONG_UNICODE = "\u2715"
 WARNING_UNICODE = "\u26A0"
 
-CONNECTOR_CATEGORY = ['Analytics and SIEM', 'Authentication', 'Case Management', 'Threat Intelligence', 'Database',
-                      'Deception', 'Email Gateway', 'Endpoint Security', 'Identity and Access Management',
-                      'Authentication', 'Insider Threat', 'IT Services', 'Network Security', 'Utilities',
-                      'Vulnerability and Risk Management', 'OT & IoT Security', 'Communication and Coordination',
-                      'Compliance and Reporting', 'FortiSOAR Essentials', 'Monitoring',
-                      'Firewall and Network Protection', 'Threat Hunting and Search', 'Web Application',
-                      'Task Management', 'Enterprise mobility management', 'Digital assistant', 'Automation controller',
-                      'Logging', 'Query Service', 'Threat Detection', 'Breach and Attack Simulation (BAS)',
-                      'ML Service', 'Message Queueing Service', 'Security Posture Management', 'Compute Platform',
-                      'Storage', 'Asset Management', 'Container Services', 'IT Service Management',
-                      'Attack surface management', 'Malware Analysis', 'Cloud access security broker (CASB)',
-                      'Cloud Security', 'Email Server', 'Email Security',
-                      'DevOps and Digital Operations and Digital Operations', 'Ticket Management', 'Other']
+CONNECTOR_CATEGORY = ['Analytics and SIEM', 'Asset Management', 'Attack surface management', 'Authentication',
+                      'Automation controller', 'Case Management', 'Cloud access security broker (CASB)', 'Cloud Security',
+                      'Communication and Coordination', 'Compliance and Reporting', 'Compute Platform', 'Computing',
+                      'Container Services', 'Database', 'Deception', 'DevOps and Digital Operations', 'Digital assistant',
+                      'Email Gateway', 'Email Security', 'Email Server', 'Endpoint Security', 'Enterprise mobility management',
+                      'Firewall and Network Protection', 'Forensics and Malware Analysis', 'FortiSOAR Essentials',
+                      'Identity and Access Management', 'Insider Threat', 'OT & IoT Security', 'IT Service Management',
+                      'IT Services', 'Logging', 'Malware Analysis', 'Message Queueing Service', 'ML Service', 'Monitoring',
+                      'Network Security', 'Query Service', 'Security Posture Management', 'Storage', 'Task Management',
+                      'Threat Detection', 'Threat Hunting and Search', 'Threat Intelligence', 'Utilities',
+                      'Vulnerability and Risk Management', 'Web Application', 'Breach and Attack Simulation (BAS)',
+                      'Ticket Management']
 OPERATION_CATEGORY = ["investigation", "containment", "remediation", "miscellaneous"]
 PARAMETER_CATEGORY = ["text", "textarea", "integer", "datetime", "select", "multiselect", "checkbox", "password",
                       "json", "apiOperation", "email"]
