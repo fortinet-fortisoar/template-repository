@@ -31,8 +31,9 @@ CONNECTOR_CATEGORY = ['Analytics and SIEM', 'Asset Management', 'Attack surface 
                       'Vulnerability and Risk Management', 'Web Application', 'Breach and Attack Simulation (BAS)',
                       'Ticket Management']
 OPERATION_CATEGORY = ["investigation", "containment", "remediation", "miscellaneous"]
-PARAMETER_CATEGORY = ["text", "textarea", "integer", "datetime", "select", "multiselect", "checkbox", "password",
-                      "json", "apiOperation", "email"]
+PARAMETER_CATEGORY = ["text", "textarea", "integer", "datetime", "date", "select", "multiselect", "checkbox", "password",
+                      "json", "apiOperation", "email", "object", "file", "richtext", "html", "decimal", "phone", "domain",
+                      "filehash", "ipv4", "ipv6", "url"]
 
 
 def get_info_file_path():
@@ -95,7 +96,7 @@ class TestConnectorInfoSanity:
         self.verify_configurations()
 
         for op in self.connector_info.get("operations", []):
-            self.verify_operation(op)
+            self.verify_operation(op, self.connector_info.get("cs_approved"))
 
     def verify_copyright_block(self):
         for dirname, dirnames, filenames in os.walk('.'):
@@ -190,12 +191,12 @@ class TestConnectorInfoSanity:
         for field in fields:
             self.verify_parameter("Configurations", field)
 
-    def verify_operation(self, operation):
+    def verify_operation(self, operation, is_certified):
         self.verify_operation_name(operation)
         self.verify_operation_title(operation)
         self.verify_operation_category(operation)
         self.verify_operation_descriptions(operation)
-        self.verify_operation_output_schema(operation)
+        self.verify_operation_output_schema(operation, is_certified)
 
         for param in operation.get("parameters", []):
             self.verify_parameter(operation.get("title"), param)
@@ -237,7 +238,11 @@ class TestConnectorInfoSanity:
         else:
             self.append_wrong(f"Operation: '{operation.get('operation')}' -> Operation description is missing.")
 
-    def verify_operation_output_schema(self, operation):
+    def verify_operation_output_schema(self, operation, is_certified):
+        action_names = ["Execute an API Call", "Execute an API Request"]
+        if any(name in operation.get("title") for name in action_names):
+            self.append_correct(
+                f"Operation: '{operation.get('operation')}' -> Operation output schema is available.")
         if "conditional_output_schema" in operation:
             op_output_schema = operation.get("conditional_output_schema")
         elif "api_output_schema" in operation:
@@ -247,8 +252,11 @@ class TestConnectorInfoSanity:
         if op_output_schema:
             self.append_correct(
                 f"Operation: '{operation.get('operation')}' -> Operation output schema is available.")
-        else:
+        elif is_certified:
             self.append_wrong(
+                f"Operation: '{operation.get('operation')}' -> Operation output schema is missing.")
+        else:
+            self.append_warning(
                 f"Operation: '{operation.get('operation')}' -> Operation output schema is missing.")
 
     def verify_parameter(self, op_name, params):
@@ -326,7 +334,7 @@ def main():
         if test_conn.warning:
             error_msg = f"\033[31mAll the checks didn't pass. '{test_conn.failed_test_count}' checks failed, " \
                         f"'{test_conn.warning_test_count}' checks had warnings out of '{total_checks}' checks.\n" \
-                        + test_conn.warning + test_conn.error
+                        + test_conn.error
         else:
             error_msg = f"\033[31mAll the checks didn't pass. '{test_conn.failed_test_count}' checks failed out of " \
                         f"'{total_checks}' checks.\n" + test_conn.error
